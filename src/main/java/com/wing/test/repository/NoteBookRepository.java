@@ -3,6 +3,7 @@ package com.wing.test.repository;
 import com.wing.test.dto.NoteBookStatus;
 import com.wing.test.entity.NoteBook;
 import com.wing.test.repository.extention.PutExtension;
+import org.apache.hadoop.hbase.client.Delete;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
@@ -37,6 +38,14 @@ public class NoteBookRepository {
                     .build(NoteBook.COLUMN_FAMILY_NOTE_BOOK_INFO, NoteBook.COLUMN_NOTE_BOOK_STATUS, noteBook.getNoteBookStatus());
             table.put(put);
             return noteBook;
+        });
+    }
+
+    public void deleteNoteBook(String rowKey) {
+        hbaseTemplate.execute(NoteBook.TABLE_NAME, (table) -> {
+            Delete delete = new Delete(Bytes.toBytes(rowKey));
+            table.delete(delete);
+            return null;
         });
     }
 

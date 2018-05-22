@@ -26,4 +26,9 @@ public class NoteBookServiceTest {
         noteBookService.addNewNoteBook(noteBook);
     }
 
+    @Test
+    public void test_delete_note_book() {
+        noteBookService.deleteNoteBook("123_1526894234864");
+    }
+
 }

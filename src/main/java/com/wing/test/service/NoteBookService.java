@@ -2,7 +2,6 @@ package com.wing.test.service;
 
 import com.wing.test.entity.NoteBook;
 import com.wing.test.repository.NoteBookRepository;
-import com.wing.test.repository.RedisRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -20,12 +19,17 @@ public class NoteBookService {
     private ThreadPoolTaskExecutor threadPoolTaskExecutor;
 
     @Autowired
-    private RedisRepository redisRepository;
+    private RedisService redisService;
 
 
     public void addNewNoteBook(NoteBook noteBook) {
         noteBookRepository.saveOrUpdate(noteBook);
         threadPoolTaskExecutor.execute(() -> flushCacheForNoteBook(noteBook.getRowKey()));
+    }
+
+    public void deleteNoteBook(String rowKey) {
+        noteBookRepository.deleteNoteBook(rowKey);
+        threadPoolTaskExecutor.execute(() -> flushCacheForNoteBook(rowKey.split("_")[0]));
     }
 
     @Cacheable(value= "note_book", key = "#rowKey")
@@ -36,7 +40,7 @@ public class NoteBookService {
 
     private void flushCacheForNoteBook(String rowKey) {
         List<NoteBook> noteBooks = noteBookRepository.findNoteBooksByRowKey(rowKey);
-        redisRepository.set(rowKey, noteBooks);
+        redisService.setExpire(rowKey, noteBooks);
     }
 
 }

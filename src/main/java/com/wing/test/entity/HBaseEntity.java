@@ -16,6 +16,9 @@ public class HBaseEntity{
 
     @JsonIgnore
     public String getRowKeyTime() {
+        if(rowKey.indexOf(ROW_KEY_APPEND) != -1) {
+            return rowKey;
+        }
         return rowKey + ROW_KEY_APPEND + getCurrentTimeMillis();
     }
 
